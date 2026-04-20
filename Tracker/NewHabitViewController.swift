@@ -55,7 +55,7 @@ final class NewHabitViewController: UIViewController {
             string: "Введите название трекера",
             attributes: [.foregroundColor: UIColor.secondaryLabel]
         )
-        textField.backgroundColor = UIColor(named: "Background [day]")
+        textField.backgroundColor = UIColor(resource: .backgroundDay)
         textField.layer.cornerRadius = 16
         textField.font = UIFont.systemFont(ofSize: 17)
         
@@ -83,7 +83,7 @@ final class NewHabitViewController: UIViewController {
         cancelButton.layer.borderColor = UIColor.red.cgColor
         
         createButton.setTitle("Создать", for: .normal)
-        createButton.backgroundColor = UIColor(named: "Gray")
+        createButton.backgroundColor = UIColor(resource: .gray)
         createButton.setTitleColor(.white, for: .normal)
         createButton.layer.cornerRadius = 16
         
@@ -93,8 +93,8 @@ final class NewHabitViewController: UIViewController {
         view.addSubview(cancelButton)
         view.addSubview(createButton)
         
-        cancelButton.addTarget(self, action: #selector(cancelTapped), for: .touchUpInside)
-        createButton.addTarget(self, action: #selector(createTapped), for: .touchUpInside)
+        cancelButton.addAction(UIAction { [weak self] _ in self?.cancelTapped() }, for: .touchUpInside)
+        createButton.addAction(UIAction { [weak self] _ in self?.createTapped() }, for: .touchUpInside)
     }
     
     private func setupGestures() {
@@ -161,7 +161,7 @@ final class NewHabitViewController: UIViewController {
     // MARK: - Configure UI
     
     private func configureOptionsView() {
-        optionsView.backgroundColor = UIColor(named: "Background [day]")
+        optionsView.backgroundColor = UIColor(resource: .backgroundDay)
         optionsView.layer.cornerRadius = 16
         optionsView.clipsToBounds = true
         
@@ -217,11 +217,11 @@ final class NewHabitViewController: UIViewController {
     
     // MARK: - Actions
     
-    @objc private func cancelTapped() {
+    private func cancelTapped() {
         dismiss(animated: true)
     }
     
-    @objc private func createTapped() {
+    private func createTapped() {
         guard let name = textField.text, !name.isEmpty else { return }
         
         let tracker = Tracker(

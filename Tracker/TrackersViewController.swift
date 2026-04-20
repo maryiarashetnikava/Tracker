@@ -212,7 +212,7 @@ extension TrackersViewController {
         let vc = NewHabitViewController()
         
         vc.onCreate = { [weak self] tracker in
-            guard let self = self else { return }
+            guard let self else { return }
             
             let currentCategory = self.categories.first
             
@@ -276,10 +276,12 @@ extension TrackersViewController: UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
-        let cell = collectionView.dequeueReusableCell(
+        guard let cell = collectionView.dequeueReusableCell(
             withReuseIdentifier: TrackerCell.reuseIdentifier,
             for: indexPath
-        ) as! TrackerCell
+        ) as? TrackerCell else {
+            return UICollectionViewCell()
+        }
         
         let tracker = filteredTrackers[indexPath.item]
 
