@@ -4,22 +4,27 @@ final class TrackersViewController: UIViewController {
     
     // MARK: - Data
     
-    var categories: [TrackerCategory] = [
-        TrackerCategory(
-            title: "По умолчанию",
-            trackers: [
-                Tracker(id: UUID(), name: "Поливать растения", color: .systemGreen, emoji: "❤️", schedule: [.tuesday, .wednesday, .thursday, .friday, .saturday, .sunday]),
-                Tracker(id: UUID(), name: "Кошка заслонила камеру на созвоне", color: .systemBlue, emoji: "😻", schedule: [.wednesday, .friday]),
-                Tracker(id: UUID(), name: "Бабушка прислала открытку", color: .systemRed, emoji: "🌺", schedule: [.tuesday, .wednesday, .sunday])
-            ]
-        )
-    ]
-    private var trackers: [Tracker] {
-        categories.flatMap { $0.trackers }
-    }
-    
     var completedTrackers: Set<TrackerRecord> = []
     var currentDate: Date = Date()
+    
+    private let trackerStore: TrackerStore
+    
+    var visibleTrackers: [TrackerCoreData] {
+        guard let selectedDay = weekDay(from: currentDate) else {
+            return []
+        }
+        
+        return trackerStore.trackers.filter { trackerCD in
+            
+            guard let data = trackerCD.schedule as? Data,
+                  let schedule = try? JSONDecoder().decode([Weekday].self, from: data)
+            else {
+                return false
+            }
+            
+            return schedule.contains(selectedDay)
+        }
+    }
 
     
     // MARK: - UI
@@ -31,6 +36,21 @@ final class TrackersViewController: UIViewController {
     private let datePicker = UIDatePicker()
     
     private var collectionView: UICollectionView!
+    
+    
+    // MARK: - Init
+
+    init(trackerStore: TrackerStore) {
+        self.trackerStore = trackerStore
+        super.init(nibName: nil, bundle: nil)
+        
+        trackerStore.delegate = self
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        nil
+    }
     
     // MARK: - Lifecycle
     
@@ -46,6 +66,7 @@ final class TrackersViewController: UIViewController {
         setupDatePicker()
         
         updateEmptyState()
+
     }
 }
 
@@ -172,24 +193,7 @@ extension TrackersViewController {
 // MARK: - State / UI State
 
 extension TrackersViewController {
-    
-    var filteredTrackers: [Tracker] {
-        guard let selectedDay = weekDay(from: currentDate) else {
-            return []
-        }
-        
-        return trackers.filter { tracker in
-            tracker.schedule.contains(selectedDay)
-        }
-    }
-    
-    func updateEmptyState() {
-        let isEmpty = filteredTrackers.isEmpty 
-        
-        emptyImageView.isHidden = !isEmpty
-        emptyLabel.isHidden = !isEmpty
-        collectionView.isHidden = isEmpty
-    }
+
     
     func isTrackerCompleted(_ tracker: Tracker, on date: Date) -> Bool {
         let record = TrackerRecord(
@@ -201,6 +205,14 @@ extension TrackersViewController {
     
     func isFutureDate(_ date: Date) -> Bool {
         return Calendar.current.compare(date, to: Date(), toGranularity: .day) == .orderedDescending
+    }
+    
+    func updateEmptyState() {
+        let isEmpty = visibleTrackers.isEmpty
+        
+        emptyImageView.isHidden = !isEmpty
+        emptyLabel.isHidden = !isEmpty
+        collectionView.isHidden = isEmpty
     }
 }
 
@@ -214,19 +226,7 @@ extension TrackersViewController {
         vc.onCreate = { [weak self] tracker in
             guard let self else { return }
             
-            let currentCategory = self.categories.first
-            
-            let updatedTrackers = (currentCategory?.trackers ?? []) + [tracker]
-            
-            let newCategory = TrackerCategory(
-                title: currentCategory?.title ?? "По умолчанию",
-                trackers: updatedTrackers
-            )
-            
-            self.categories = [newCategory]
-            
-            self.collectionView.reloadData()
-            self.updateEmptyState()
+            self.trackerStore.add(tracker)
         }
         
         let nav = UINavigationController(rootViewController: vc)
@@ -271,7 +271,7 @@ extension TrackersViewController: UICollectionViewDataSource {
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return filteredTrackers.count
+        return visibleTrackers.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -283,8 +283,9 @@ extension TrackersViewController: UICollectionViewDataSource {
             return UICollectionViewCell()
         }
         
-        let tracker = filteredTrackers[indexPath.item]
-
+        let trackerCD = visibleTrackers[indexPath.item]
+        let tracker = makeTracker(from: trackerCD)
+        
         let count = completedTrackers.filter {
             $0.trackerId == tracker.id
         }.count
@@ -345,7 +346,9 @@ extension TrackersViewController: TrackerCellDelegate {
             return
         }
         
-        let tracker = filteredTrackers[indexPath.item]
+        let trackerCD = visibleTrackers[indexPath.item]
+        let tracker = makeTracker(from: trackerCD)
+        
         let date = datePicker.date
         
         if isFutureDate(date) {
@@ -362,6 +365,16 @@ extension TrackersViewController: TrackerCellDelegate {
         
         collectionView.reloadItems(at: [indexPath])
     }
+}
+// MARK: - TrackerStore Delegate
+
+extension TrackersViewController: TrackerStoreDelegate {
+
+    func didUpdate() {
+        collectionView.reloadData()
+        updateEmptyState()
+    }
+    
 }
 
 // MARK: - Helpers
@@ -380,4 +393,25 @@ extension TrackersViewController {
     func normalizedDate(_ date: Date) -> Date {
         Calendar.current.startOfDay(for: date)
     }
+    
+    func makeTracker(from trackerCD: TrackerCoreData) -> Tracker {
+        
+        let schedule: [Weekday]
+
+        if let data = trackerCD.schedule as? Data,
+           let decoded = try? JSONDecoder().decode([Weekday].self, from: data) {
+            schedule = decoded
+        } else {
+            schedule = []
+        }
+
+        return Tracker(
+            id: trackerCD.id ?? UUID(),
+            name: trackerCD.name ?? "",
+            color: trackerCD.color as? UIColor ?? .black,
+            emoji: trackerCD.emoji ?? "",
+            schedule: schedule
+        )
+    }
 }
+
