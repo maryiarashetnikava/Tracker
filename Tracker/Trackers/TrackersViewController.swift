@@ -3,11 +3,11 @@ import UIKit
 final class TrackersViewController: UIViewController {
     
     // MARK: - Data
-    
-    var completedTrackers: Set<TrackerRecord> = []
+
     var currentDate: Date = Date()
     
     private let trackerStore: TrackerStore
+    private let recordStore: TrackerRecordStore
     
     var visibleTrackers: [TrackerCoreData] {
         guard let selectedDay = weekDay(from: currentDate) else {
@@ -34,11 +34,13 @@ final class TrackersViewController: UIViewController {
     
     // MARK: - Init
 
-    init(trackerStore: TrackerStore) {
+    init(trackerStore: TrackerStore, recordStore: TrackerRecordStore) {
         self.trackerStore = trackerStore
+        self.recordStore = recordStore
         super.init(nibName: nil, bundle: nil)
         
         trackerStore.delegate = self
+        recordStore.delegate = self
     }
 
     @available(*, unavailable)
@@ -188,13 +190,11 @@ extension TrackersViewController {
 
 extension TrackersViewController {
 
-    
     func isTrackerCompleted(_ tracker: Tracker, on date: Date) -> Bool {
-        let record = TrackerRecord(
+        return recordStore.isTrackerCompleted(
             trackerId: tracker.id,
             date: normalizedDate(date)
         )
-        return completedTrackers.contains(record)
     }
     
     func isFutureDate(_ date: Date) -> Bool {
@@ -236,25 +236,6 @@ extension TrackersViewController {
     }
 }
 
-// MARK: - Data Manipulation
-
-extension TrackersViewController {
-    func completeTracker(_ tracker: Tracker, on date: Date) {
-        let record = TrackerRecord(
-            trackerId: tracker.id,
-            date: normalizedDate(date)
-        )
-        completedTrackers.insert(record)
-    }
-    
-    func uncompleteTracker(_ tracker: Tracker, on date: Date) {
-        let record = TrackerRecord(
-            trackerId: tracker.id,
-            date: normalizedDate(date)
-        )
-        completedTrackers.remove(record)
-    }
-}
 
 // MARK: - CollectionView DataSource
 
@@ -280,7 +261,7 @@ extension TrackersViewController: UICollectionViewDataSource {
         let trackerCD = visibleTrackers[indexPath.item]
         let tracker = makeTracker(from: trackerCD)
         
-        let count = completedTrackers.filter {
+        let count = recordStore.fetchRecords().filter {
             $0.trackerId == tracker.id
         }.count
 
@@ -352,9 +333,9 @@ extension TrackersViewController: TrackerCellDelegate {
         let isCompleted = isTrackerCompleted(tracker, on: date)
         
         if isCompleted {
-            uncompleteTracker(tracker, on: date)
+            recordStore.deleteRecord(trackerId: tracker.id, date: normalizedDate(date))
         } else {
-            completeTracker(tracker, on: date)
+            recordStore.addRecord(trackerId: tracker.id, date: normalizedDate(date))
         }
         
         collectionView.reloadItems(at: [indexPath])
@@ -369,6 +350,14 @@ extension TrackersViewController: TrackerStoreDelegate {
         updateEmptyState()
     }
     
+}
+
+// MARK: - TrackerRecordStore Delegate
+
+extension TrackersViewController: TrackerRecordStoreDelegate {
+    func didUpdateRecords() {
+        collectionView.reloadData()
+    }
 }
 
 // MARK: - Helpers

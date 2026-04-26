@@ -42,12 +42,50 @@ extension TrackerRecordStore {
         let record = TrackerRecordCoreData(context: context)
         
         record.trackerId = trackerId
-        record.date = date
+        record.date = Calendar.current.startOfDay(for: date)
         
         do {
             try context.save()
         } catch {
             print("Ошибка сохранения записи: \(error)")
+        }
+    }
+    
+    func deleteRecord(trackerId: UUID, date: Date) {
+        guard let records = fetchedResultsController.fetchedObjects else { return }
+        
+        let calendar = Calendar.current
+        
+        for record in records {
+            if record.trackerId == trackerId,
+               let recordDate = record.date,
+               calendar.isDate(recordDate, inSameDayAs: date) {
+                
+                context.delete(record)
+            }
+        }
+        
+        do {
+            try context.save()
+        } catch {
+            print("Ошибка удаления записи: \(error)")
+        }
+    }
+    
+    func fetchRecords() -> [TrackerRecordCoreData] {
+        return fetchedResultsController.fetchedObjects ?? []
+    }
+    
+    func isTrackerCompleted(trackerId: UUID, date: Date) -> Bool {
+        guard let records = fetchedResultsController.fetchedObjects else { return false }
+        
+        let calendar = Calendar.current
+        
+        return records.contains { record in
+            guard let recordDate = record.date else { return false }
+            
+            return record.trackerId == trackerId &&
+                   calendar.isDate(recordDate, inSameDayAs: date)
         }
     }
 }
