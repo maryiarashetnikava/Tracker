@@ -27,6 +27,7 @@ final class NewHabitViewController: UIViewController {
     
     private let categoryLabel = UILabel()
     private let scheduleLabel = UILabel()
+    private let scheduleSubtitleLabel = UILabel()
     
     private let categoryArrow = UIImageView()
     private let scheduleArrow = UIImageView()
@@ -85,6 +86,8 @@ final class NewHabitViewController: UIViewController {
         setupGestures()
         setupButtons()
         setupConstraints()
+        
+        updateCreateButtonState()
     }
     
     // MARK: - Setup
@@ -116,6 +119,8 @@ final class NewHabitViewController: UIViewController {
         
         textField.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(textField)
+        
+        textField.addTarget(self, action: #selector(textDidChange), for: .editingChanged)
     }
     
     private func setupOptionsView() {
@@ -241,11 +246,13 @@ final class NewHabitViewController: UIViewController {
             scheduleRow.bottomAnchor.constraint(equalTo: optionsView.bottomAnchor, constant: -8),
             
             scheduleLabel.leadingAnchor.constraint(equalTo: scheduleRow.leadingAnchor, constant: 16),
-            scheduleLabel.topAnchor.constraint(equalTo: scheduleRow.topAnchor, constant: 24),
-            scheduleLabel.bottomAnchor.constraint(equalTo: scheduleRow.bottomAnchor, constant: -24),
+            scheduleLabel.topAnchor.constraint(equalTo: scheduleRow.topAnchor, constant: 16),
+            scheduleSubtitleLabel.leadingAnchor.constraint(equalTo: scheduleLabel.leadingAnchor),
+            scheduleSubtitleLabel.topAnchor.constraint(equalTo: scheduleLabel.bottomAnchor, constant: 4),
+            scheduleSubtitleLabel.bottomAnchor.constraint(equalTo: scheduleRow.bottomAnchor, constant: -16),
             
             scheduleArrow.trailingAnchor.constraint(equalTo: scheduleRow.trailingAnchor, constant: -16),
-            scheduleArrow.centerYAnchor.constraint(equalTo: scheduleLabel.centerYAnchor),
+            scheduleArrow.centerYAnchor.constraint(equalTo: scheduleRow.centerYAnchor),
             
             // Emoji
             
@@ -310,6 +317,10 @@ final class NewHabitViewController: UIViewController {
         
         scheduleArrow.image = UIImage(systemName: "chevron.right")
         scheduleArrow.tintColor = .tertiaryLabel
+        
+        scheduleSubtitleLabel.font = UIFont.systemFont(ofSize: 17)
+        scheduleSubtitleLabel.textColor = .secondaryLabel
+        scheduleSubtitleLabel.text = ""
     }
     
     private func configureDivider() {
@@ -324,6 +335,7 @@ final class NewHabitViewController: UIViewController {
         categoryLabel.translatesAutoresizingMaskIntoConstraints = false
         categoryArrow.translatesAutoresizingMaskIntoConstraints = false
         scheduleLabel.translatesAutoresizingMaskIntoConstraints = false
+        scheduleSubtitleLabel.translatesAutoresizingMaskIntoConstraints = false
         scheduleArrow.translatesAutoresizingMaskIntoConstraints = false
         divider.translatesAutoresizingMaskIntoConstraints = false
         
@@ -336,6 +348,7 @@ final class NewHabitViewController: UIViewController {
         
         scheduleRow.addSubview(scheduleLabel)
         scheduleRow.addSubview(scheduleArrow)
+        scheduleRow.addSubview(scheduleSubtitleLabel)
     }
     
     // MARK: - Actions
@@ -372,12 +385,56 @@ final class NewHabitViewController: UIViewController {
         
         vc.onSave = { [weak self] days in
             self?.selectedDays = days
+            self?.updateScheduleLabel()
+            self?.updateCreateButtonState()
         }
         
         let nav = UINavigationController(rootViewController: vc)
         nav.modalPresentationStyle = .pageSheet
         
         present(nav, animated: true)
+    }
+    
+    @objc private func textDidChange() {
+        updateCreateButtonState()
+    }
+    
+    private func updateScheduleLabel() {
+        if selectedDays.isEmpty {
+            scheduleSubtitleLabel.text = ""
+            return
+        }
+        
+        let sortedDays = selectedDays.sorted { $0.rawValue < $1.rawValue }
+        let shortNames = sortedDays.map { shortName(for: $0) }
+        
+        scheduleSubtitleLabel.text = shortNames.joined(separator: ", ")
+    }
+    
+    private func updateCreateButtonState() {
+        let hasName = !(textField.text?.isEmpty ?? true)
+        let hasEmoji = selectedEmojiIndex != nil
+        let hasColor = selectedColorIndex != nil
+        let hasSchedule = !selectedDays.isEmpty
+        
+        let isEnabled = hasName && hasEmoji && hasColor && hasSchedule
+        
+        createButton.isEnabled = isEnabled
+        createButton.backgroundColor = isEnabled ? .black : UIColor(resource: .gray)
+    }
+    
+    // MARK: - Helpers
+    
+    private func shortName(for day: Weekday) -> String {
+        switch day {
+        case .monday: return "Пн"
+        case .tuesday: return "Вт"
+        case .wednesday: return "Ср"
+        case .thursday: return "Чт"
+        case .friday: return "Пт"
+        case .saturday: return "Сб"
+        case .sunday: return "Вс"
+        }
     }
 }
 
@@ -460,5 +517,6 @@ extension NewHabitViewController: UICollectionViewDataSource, UICollectionViewDe
             selectedColorIndex = indexPath
         }
         collectionView.reloadData()
+        updateCreateButtonState()
     }
 }

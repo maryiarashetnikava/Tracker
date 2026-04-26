@@ -57,13 +57,15 @@ extension TrackerStore {
         trackerCD.name = tracker.name
         trackerCD.emoji = tracker.emoji
         trackerCD.color = tracker.color
-        trackerCD.schedule = try? JSONEncoder().encode(tracker.schedule) as NSObject
+        trackerCD.schedule = tracker.schedule as NSObject
         
         do {
             try context.save()
+            
         } catch {
             print("Ошибка сохранения: \(error)")
         }
+        
     }
 }
 

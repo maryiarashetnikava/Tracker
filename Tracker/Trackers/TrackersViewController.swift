@@ -15,13 +15,7 @@ final class TrackersViewController: UIViewController {
         }
         
         return trackerStore.trackers.filter { trackerCD in
-            
-            guard let data = trackerCD.schedule as? Data,
-                  let schedule = try? JSONDecoder().decode([Weekday].self, from: data)
-            else {
-                return false
-            }
-            
+            let schedule = trackerCD.schedule as? [Weekday] ?? []
             return schedule.contains(selectedDay)
         }
     }
