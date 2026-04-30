@@ -1,9 +1,4 @@
-//
-//  SceneDelegate.swift
-//  Tracker
-//
-//  Created by Maria Reshetnikova on 08/04/2026.
-//
+
 
 import UIKit
 
@@ -17,8 +12,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScene = scene as? UIWindowScene else { return }
         
         let window = UIWindow(windowScene: windowScene)
+
+        let trackerStore = TrackerStore(context: CoreDataStack.shared.context)
+        let recordStore = TrackerRecordStore(context: CoreDataStack.shared.context)
         
-        let trackersVC = TrackersViewController()
+        let trackersVC = TrackersViewController(trackerStore: trackerStore, recordStore: recordStore)
         let trackersNav = UINavigationController(rootViewController: trackersVC)
         trackersNav.tabBarItem = UITabBarItem(
             title: "Трекеры",
