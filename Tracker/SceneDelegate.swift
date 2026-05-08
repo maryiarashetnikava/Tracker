@@ -35,7 +35,23 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let tabBarController = UITabBarController()
         tabBarController.viewControllers = [trackersNav, statsNav]
         
-        window.rootViewController = tabBarController
+        let hasSeenOnboarding = UserDefaults.standard.bool(forKey: "hasSeenOnboarding")
+
+        if hasSeenOnboarding {
+            window.rootViewController = tabBarController
+        } else {
+            let onboardingVC = OnboardingViewController(
+                transitionStyle: .scroll,
+                navigationOrientation: .horizontal
+            )
+
+            onboardingVC.onFinish = {
+                window.rootViewController = tabBarController
+            }
+
+            window.rootViewController = onboardingVC
+        }
+        
         self.window = window
         window.makeKeyAndVisible()
     }
