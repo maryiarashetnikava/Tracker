@@ -9,6 +9,7 @@ final class NewHabitViewController: UIViewController {
     // MARK: - Private Properties
     
     private var selectedDays: Set<Weekday> = []
+    private var selectedCategory: TrackerCategoryCoreData?
     
     // MARK: - UI
     
@@ -26,6 +27,7 @@ final class NewHabitViewController: UIViewController {
     private let scheduleRow = UIView()
     
     private let categoryLabel = UILabel()
+    private let categorySubtitleLabel = UILabel()
     private let scheduleLabel = UILabel()
     private let scheduleSubtitleLabel = UILabel()
     
@@ -77,6 +79,8 @@ final class NewHabitViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        navigationItem.backButtonTitle = ""
+        
         setupView()
         setupScrollView()
         setupTextField()
@@ -88,6 +92,7 @@ final class NewHabitViewController: UIViewController {
         setupConstraints()
         
         updateCreateButtonState()
+        updateCategoryUI()
     }
     
     // MARK: - Setup
@@ -229,11 +234,14 @@ final class NewHabitViewController: UIViewController {
             categoryRow.trailingAnchor.constraint(equalTo: optionsView.trailingAnchor),
             
             categoryLabel.leadingAnchor.constraint(equalTo: categoryRow.leadingAnchor, constant: 16),
-            categoryLabel.topAnchor.constraint(equalTo: categoryRow.topAnchor, constant: 24),
-            categoryLabel.bottomAnchor.constraint(equalTo: categoryRow.bottomAnchor, constant: -24),
-            
+            categoryLabel.topAnchor.constraint(equalTo: categoryRow.topAnchor, constant: 12),
+
+            categorySubtitleLabel.leadingAnchor.constraint(equalTo: categoryLabel.leadingAnchor),
+            categorySubtitleLabel.topAnchor.constraint(equalTo: categoryLabel.bottomAnchor, constant: 4),
+            categorySubtitleLabel.bottomAnchor.constraint(equalTo: categoryRow.bottomAnchor, constant: -12),
+
             categoryArrow.trailingAnchor.constraint(equalTo: categoryRow.trailingAnchor, constant: -16),
-            categoryArrow.centerYAnchor.constraint(equalTo: categoryLabel.centerYAnchor),
+            categoryArrow.centerYAnchor.constraint(equalTo: categoryRow.centerYAnchor),
             
             divider.topAnchor.constraint(equalTo: categoryRow.bottomAnchor, constant: 4),
             divider.leadingAnchor.constraint(equalTo: optionsView.leadingAnchor, constant: 16),
@@ -309,6 +317,11 @@ final class NewHabitViewController: UIViewController {
         
         categoryArrow.image = UIImage(systemName: "chevron.right")
         categoryArrow.tintColor = .tertiaryLabel
+        
+        categorySubtitleLabel.font = UIFont.systemFont(ofSize: 17)
+        categorySubtitleLabel.textColor = .secondaryLabel
+        categorySubtitleLabel.text = ""
+        categorySubtitleLabel.numberOfLines = 1
     }
     
     private func configureScheduleRow() {
@@ -333,6 +346,7 @@ final class NewHabitViewController: UIViewController {
         scheduleRow.translatesAutoresizingMaskIntoConstraints = false
         
         categoryLabel.translatesAutoresizingMaskIntoConstraints = false
+        categorySubtitleLabel.translatesAutoresizingMaskIntoConstraints = false
         categoryArrow.translatesAutoresizingMaskIntoConstraints = false
         scheduleLabel.translatesAutoresizingMaskIntoConstraints = false
         scheduleSubtitleLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -345,6 +359,7 @@ final class NewHabitViewController: UIViewController {
         
         categoryRow.addSubview(categoryLabel)
         categoryRow.addSubview(categoryArrow)
+        categoryRow.addSubview(categorySubtitleLabel)
         
         scheduleRow.addSubview(scheduleLabel)
         scheduleRow.addSubview(scheduleArrow)
@@ -376,7 +391,21 @@ final class NewHabitViewController: UIViewController {
     }
     
     @objc private func categoryTapped() {
-        print("Категория нажата")
+        let store = TrackerCategoryStore(context: CoreDataStack.shared.context)
+        let viewModel = TrackerCategoryViewModel(
+            store: store,
+            selectedCategory: selectedCategory
+        )
+        
+        let vc = CategoriesViewController(viewModel: viewModel)
+        
+        vc.onCategorySelected = { [weak self] category in
+            self?.selectedCategory = category
+            self?.updateCategoryUI()
+            self?.updateCreateButtonState()
+        }
+        
+        navigationController?.pushViewController(vc, animated: true)
     }
 
     @objc private func scheduleTapped() {
@@ -397,6 +426,13 @@ final class NewHabitViewController: UIViewController {
     
     @objc private func textDidChange() {
         updateCreateButtonState()
+    }
+    
+    private func updateCategoryUI() {
+        let hasCategory = selectedCategory != nil
+        
+        categorySubtitleLabel.text = selectedCategory?.title
+        categorySubtitleLabel.isHidden = !hasCategory
     }
     
     private func updateScheduleLabel() {

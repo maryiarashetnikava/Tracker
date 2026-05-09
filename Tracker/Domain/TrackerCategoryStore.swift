@@ -42,6 +42,16 @@ final class TrackerCategoryStore: NSObject {
     func category(at indexPath: IndexPath) -> TrackerCategoryCoreData {
         fetchedResultsController.object(at: indexPath)
     }
+    
+    func update(category: TrackerCategoryCoreData, title: String) {
+        category.title = title
+        try? context.save()
+    }
+
+    func delete(category: TrackerCategoryCoreData) {
+        context.delete(category)
+        try? context.save()
+    }
 }
 
 extension TrackerCategoryStore {
