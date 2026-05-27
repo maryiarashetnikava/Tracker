@@ -6,6 +6,6 @@ final class StatisticsViewController: UIViewController {
         super.viewDidLoad()
         
         view.backgroundColor = .systemBackground
-        title = "Статистика"
+        title = NSLocalizedString("statistics.title", comment: "")
     }
 }

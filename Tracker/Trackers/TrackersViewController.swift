@@ -72,7 +72,7 @@ extension TrackersViewController {
     
     func setupView() {
         view.backgroundColor = .systemBackground
-        title = "Трекеры"
+        title = NSLocalizedString("trackers.title", comment: "")
     }
     
     func setupNavigationBar() {
@@ -95,7 +95,7 @@ extension TrackersViewController {
     }
     
     func setupSearchBar() {
-        searchBar.placeholder = "Поиск"
+        searchBar.placeholder = NSLocalizedString("search.placeholder", comment: "")
         searchBar.backgroundImage = UIImage()
         searchBar.searchBarStyle = .minimal
         searchBar.layoutMargins = .zero
@@ -141,7 +141,7 @@ extension TrackersViewController {
         emptyImageView.image = UIImage(named: "Dizzy")
         emptyImageView.contentMode = .scaleAspectFit
         
-        emptyLabel.text = "Что будем отслеживать?"
+        emptyLabel.text = NSLocalizedString("trackers.empty", comment: "")
         emptyLabel.font = UIFont.systemFont(ofSize: 12)
         emptyLabel.textColor = .label
         emptyLabel.textAlignment = .center

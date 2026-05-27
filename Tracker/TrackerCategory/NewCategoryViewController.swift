@@ -30,12 +30,12 @@ final class NewCategoryViewController: UIViewController {
         view.backgroundColor = .systemBackground
         
         title = categoryToEdit == nil
-            ? "Новая категория"
-            : "Редактирование категории"
+            ? NSLocalizedString("newCategory.title", comment: "")
+            : NSLocalizedString("editCategory.title", comment: "")
     }
     
     private func setupTextField() {
-        textField.placeholder = "Введите название категории"
+        textField.placeholder = NSLocalizedString("category.placeholder", comment: "")
         textField.backgroundColor = UIColor(resource: .backgroundDay)
         textField.layer.cornerRadius = 16
         
@@ -49,7 +49,7 @@ final class NewCategoryViewController: UIViewController {
     }
     
     private func setupButton() {
-        createButton.setTitle("Готово", for: .normal)
+        createButton.setTitle(NSLocalizedString("common.done", comment: ""),for: .normal)
         createButton.backgroundColor = .black
         createButton.setTitleColor(.white, for: .normal)
         createButton.layer.cornerRadius = 16

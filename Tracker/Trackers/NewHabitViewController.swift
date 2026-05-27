@@ -99,7 +99,7 @@ final class NewHabitViewController: UIViewController {
     
     private func setupView() {
         view.backgroundColor = .systemBackground
-        title = "Новая привычка"
+        title = NSLocalizedString("newHabit.title", comment: "")
     }
     
     private func setupScrollView() {
@@ -112,7 +112,7 @@ final class NewHabitViewController: UIViewController {
     
     private func setupTextField() {
         textField.attributedPlaceholder = NSAttributedString(
-            string: "Введите название трекера",
+            string: NSLocalizedString("tracker.placeholder", comment: ""),
             attributes: [.foregroundColor: UIColor.secondaryLabel]
         )
         textField.backgroundColor = UIColor(resource: .backgroundDay)
@@ -137,7 +137,7 @@ final class NewHabitViewController: UIViewController {
     }
     
     private func setupEmojiSection() {
-        emojiTitleLabel.text = "Emoji"
+        emojiTitleLabel.text = NSLocalizedString("emoji.title", comment: "")
         emojiTitleLabel.font = UIFont.systemFont(ofSize: 19, weight: .bold)
         
         emojiTitleLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -154,7 +154,7 @@ final class NewHabitViewController: UIViewController {
     }
     
     private func setupColorSection() {
-        colorTitleLabel.text = "Цвет"
+        colorTitleLabel.text = NSLocalizedString("color.title", comment: "")
         colorTitleLabel.font = UIFont.systemFont(ofSize: 19, weight: .bold)
         
         colorTitleLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -171,13 +171,13 @@ final class NewHabitViewController: UIViewController {
     }
     
     private func setupButtons() {
-        cancelButton.setTitle("Отменить", for: .normal)
+        cancelButton.setTitle(NSLocalizedString("common.cancel", comment: ""),for: .normal)
         cancelButton.setTitleColor(.red, for: .normal)
         cancelButton.layer.cornerRadius = 16
         cancelButton.layer.borderWidth = 1
         cancelButton.layer.borderColor = UIColor.red.cgColor
         
-        createButton.setTitle("Создать", for: .normal)
+        createButton.setTitle(NSLocalizedString("common.create", comment: ""),for: .normal)
         createButton.backgroundColor = UIColor(resource: .gray)
         createButton.setTitleColor(.white, for: .normal)
         createButton.layer.cornerRadius = 16
@@ -312,7 +312,7 @@ final class NewHabitViewController: UIViewController {
     }
     
     private func configureCategoryRow() {
-        categoryLabel.text = "Категория"
+        categoryLabel.text = NSLocalizedString("categories.title", comment: "")
         categoryLabel.font = UIFont.systemFont(ofSize: 17)
         
         categoryArrow.image = UIImage(systemName: "chevron.right")
@@ -325,7 +325,7 @@ final class NewHabitViewController: UIViewController {
     }
     
     private func configureScheduleRow() {
-        scheduleLabel.text = "Расписание"
+        scheduleLabel.text = NSLocalizedString("schedule.title", comment: "")
         scheduleLabel.font = UIFont.systemFont(ofSize: 17)
         
         scheduleArrow.image = UIImage(systemName: "chevron.right")
@@ -463,13 +463,20 @@ final class NewHabitViewController: UIViewController {
     
     private func shortName(for day: Weekday) -> String {
         switch day {
-        case .monday: return "Пн"
-        case .tuesday: return "Вт"
-        case .wednesday: return "Ср"
-        case .thursday: return "Чт"
-        case .friday: return "Пт"
-        case .saturday: return "Сб"
-        case .sunday: return "Вс"
+        case .monday:
+            return NSLocalizedString("weekday.monday.short", comment: "")
+        case .tuesday:
+            return NSLocalizedString("weekday.tuesday.short", comment: "")
+        case .wednesday:
+            return NSLocalizedString("weekday.wednesday.short", comment: "")
+        case .thursday:
+            return NSLocalizedString("weekday.thursday.short", comment: "")
+        case .friday:
+            return NSLocalizedString("weekday.friday.short", comment: "")
+        case .saturday:
+            return NSLocalizedString("weekday.saturday.short", comment: "")
+        case .sunday:
+            return NSLocalizedString("weekday.sunday.short", comment: "")
         }
     }
 }
