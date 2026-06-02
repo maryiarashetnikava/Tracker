@@ -194,7 +194,7 @@ final class CategoriesViewController: UIViewController {
         
         viewModel.onCategorySelected = { [weak self] category in
             self?.onCategorySelected?(category)
-            self?.dismiss(animated: true)
+            self?.navigationController?.popViewController(animated: true)
         }
         
         viewModel.onAddCategoryRequested = { [weak self] in

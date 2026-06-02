@@ -48,3 +48,11 @@
 "onboarding.button" = "Вот это технологии!";
 
 "categories.delete.confirm" = "Эта категория точно не нужна?";
+
+"tracker.edit" = "Редактировать";
+"tracker.delete" = "Удалить";
+
+"tracker.delete.confirmation" = "Уверены что хотите удалить трекер?";
+"common.cancel" = "Отменить";
+"common.save" = "Сохранить";
+"tracker.edit.title" = "Редактирование привычки";

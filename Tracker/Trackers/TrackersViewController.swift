@@ -5,6 +5,7 @@ final class TrackersViewController: UIViewController {
     // MARK: - Data
 
     var currentDate: Date = Date()
+    private var searchText = ""
     
     private let trackerStore: TrackerStore
     private let recordStore: TrackerRecordStore
@@ -13,11 +14,37 @@ final class TrackersViewController: UIViewController {
         guard let selectedDay = weekDay(from: currentDate) else {
             return []
         }
-        
+
         return trackerStore.trackers.filter { trackerCD in
+
             let schedule = trackerCD.schedule as? [Weekday] ?? []
-            return schedule.contains(selectedDay)
+            let matchesDay = schedule.contains(selectedDay)
+
+            let name = trackerCD.name ?? ""
+            let matchesSearch =
+                searchText.isEmpty ||
+                name.lowercased().contains(searchText.lowercased())
+
+            return matchesDay && matchesSearch
         }
+    }
+    
+    var visibleSections: [TrackerSection] {
+
+        let grouped = Dictionary(grouping: visibleTrackers) { tracker in
+            tracker.category?.title ?? ""
+        }
+
+        return grouped
+            .map {
+                TrackerSection(
+                    title: $0.key,
+                    trackers: $0.value
+                )
+            }
+            .sorted {
+                $0.title < $1.title
+            }
     }
 
     
@@ -62,6 +89,11 @@ final class TrackersViewController: UIViewController {
         setupDatePicker()
         
         updateEmptyState()
+        
+        for section in visibleSections {
+            print("Категория:", section.title)
+            print("Трекеров:", section.trackers.count)
+        }
 
     }
 }
@@ -100,6 +132,8 @@ extension TrackersViewController {
         searchBar.searchBarStyle = .minimal
         searchBar.layoutMargins = .zero
         
+        searchBar.delegate = self
+        
         let textField = searchBar.searchTextField
         textField.translatesAutoresizingMaskIntoConstraints = false
         textField.heightAnchor.constraint(equalToConstant: 36).isActive = true
@@ -125,6 +159,12 @@ extension TrackersViewController {
         collectionView.delegate = self
         
         collectionView.register(TrackerCell.self, forCellWithReuseIdentifier: TrackerCell.reuseIdentifier)
+        
+        collectionView.register(
+            TrackerSectionHeaderView.self,
+            forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
+            withReuseIdentifier: TrackerSectionHeaderView.reuseIdentifier
+        )
         
         view.addSubview(collectionView)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
@@ -234,6 +274,35 @@ extension TrackersViewController {
         collectionView.reloadData()
         updateEmptyState()
     }
+    
+    private func showDeleteAlert(for trackerCD: TrackerCoreData) {
+        
+        let alert = UIAlertController(
+            title: nil,
+            message: NSLocalizedString("tracker.delete.confirmation", comment: ""),
+            preferredStyle: .actionSheet
+        )
+
+        let deleteAction = UIAlertAction(
+            title: NSLocalizedString("tracker.delete", comment: ""),
+            style: .destructive
+        ) { [weak self] _ in
+            
+            guard let self else { return }
+
+            self.trackerStore.delete(trackerCD)
+        }
+
+        let cancelAction = UIAlertAction(
+            title: NSLocalizedString("common.cancel", comment: ""),
+            style: .cancel
+        )
+
+        alert.addAction(deleteAction)
+        alert.addAction(cancelAction)
+
+        present(alert, animated: true)
+    }
 }
 
 
@@ -242,11 +311,11 @@ extension TrackersViewController {
 extension TrackersViewController: UICollectionViewDataSource {
     
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return 1
+        return visibleSections.count
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return visibleTrackers.count
+        return visibleSections[section].trackers.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -258,7 +327,8 @@ extension TrackersViewController: UICollectionViewDataSource {
             return UICollectionViewCell()
         }
         
-        let trackerCD = visibleTrackers[indexPath.item]
+        let trackerCD = visibleSections[indexPath.section]
+            .trackers[indexPath.item]
         let tracker = makeTracker(from: trackerCD)
         
         let count = recordStore.fetchRecords().filter {
@@ -278,6 +348,29 @@ extension TrackersViewController: UICollectionViewDataSource {
         cell.delegate = self
         
         return cell
+    }
+    
+    func collectionView(
+        _ collectionView: UICollectionView,
+        viewForSupplementaryElementOfKind kind: String,
+        at indexPath: IndexPath
+    ) -> UICollectionReusableView {
+
+        guard kind == UICollectionView.elementKindSectionHeader else {
+            return UICollectionReusableView()
+        }
+
+        guard let header = collectionView.dequeueReusableSupplementaryView(
+            ofKind: kind,
+            withReuseIdentifier: TrackerSectionHeaderView.reuseIdentifier,
+            for: indexPath
+        ) as? TrackerSectionHeaderView else {
+            return UICollectionReusableView()
+        }
+
+        header.titleLabel.text = visibleSections[indexPath.section].title
+
+        return header
     }
 }
 
@@ -311,6 +404,81 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
         
         UIEdgeInsets(top: 16, left: 16, bottom: 16, right: 16)
     }
+    
+    func collectionView(
+        _ collectionView: UICollectionView,
+        layout collectionViewLayout: UICollectionViewLayout,
+        referenceSizeForHeaderInSection section: Int
+    ) -> CGSize {
+
+        return CGSize(
+            width: collectionView.bounds.width,
+            height: 40
+        )
+    }
+}
+
+// MARK: - CollectionView Delegate
+
+extension TrackersViewController: UICollectionViewDelegate {
+    
+    func collectionView(
+        _ collectionView: UICollectionView,
+        contextMenuConfigurationForItemAt indexPath: IndexPath,
+        point: CGPoint
+    ) -> UIContextMenuConfiguration? {
+
+        let editAction = UIAction(
+            title: NSLocalizedString("tracker.edit", comment: "")
+        ) { [weak self] _ in
+
+            guard let self else { return }
+
+            let trackerCD = self.visibleSections[indexPath.section]
+                .trackers[indexPath.item]
+            let tracker = self.makeTracker(from: trackerCD)
+            
+            let count = recordStore.fetchRecords().filter {
+                $0.trackerId == tracker.id
+            }.count
+
+            let vc = NewHabitViewController()
+            
+            vc.completedDaysCount = count
+            vc.configure(with: tracker)
+            
+            vc.onUpdate = { [weak self] updatedTracker in
+                self?.trackerStore.update(updatedTracker)
+            }
+
+            let nav = UINavigationController(rootViewController: vc)
+
+            self.present(nav, animated: true)
+        }
+        
+        let deleteAction = UIAction(
+            title: NSLocalizedString("tracker.delete", comment: ""),
+            attributes: .destructive
+        ) { [weak self] _ in
+
+            guard let self else { return }
+
+            let trackerCD = self.visibleSections[indexPath.section]
+                .trackers[indexPath.item]
+
+            self.showDeleteAlert(for: trackerCD)
+        }
+
+        return UIContextMenuConfiguration(
+            identifier: nil,
+            previewProvider: nil
+        ) { _ in
+            UIMenu(children: [
+                editAction,
+                deleteAction
+            ])
+        }
+    }
 }
 // MARK: - TrackerCell Delegate
 
@@ -321,7 +489,8 @@ extension TrackersViewController: TrackerCellDelegate {
             return
         }
         
-        let trackerCD = visibleTrackers[indexPath.item]
+        let trackerCD = visibleSections[indexPath.section]
+            .trackers[indexPath.item]
         let tracker = makeTracker(from: trackerCD)
         
         let date = datePicker.date
@@ -359,6 +528,19 @@ extension TrackersViewController: TrackerRecordStoreDelegate {
         collectionView.reloadData()
     }
 }
+// MARK: - UISearchBar Delegate
+
+extension TrackersViewController: UISearchBarDelegate {
+
+    func searchBar(_ searchBar: UISearchBar,
+                   textDidChange searchText: String) {
+
+        self.searchText = searchText
+
+        collectionView.reloadData()
+        updateEmptyState()
+    }
+}
 
 // MARK: - Helpers
 
@@ -379,21 +561,15 @@ extension TrackersViewController {
     
     func makeTracker(from trackerCD: TrackerCoreData) -> Tracker {
         
-        let schedule: [Weekday]
-
-        if let data = trackerCD.schedule as? Data,
-           let decoded = try? JSONDecoder().decode([Weekday].self, from: data) {
-            schedule = decoded
-        } else {
-            schedule = []
-        }
+        let schedule = trackerCD.schedule as? [Weekday] ?? []
 
         return Tracker(
             id: trackerCD.id ?? UUID(),
             name: trackerCD.name ?? "",
             color: trackerCD.color as? UIColor ?? .black,
             emoji: trackerCD.emoji ?? "",
-            schedule: schedule
+            schedule: schedule,
+            category: trackerCD.category
         )
     }
 }

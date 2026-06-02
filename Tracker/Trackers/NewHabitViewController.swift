@@ -5,11 +5,16 @@ final class NewHabitViewController: UIViewController {
     // MARK: - Public Properties
     
     var onCreate: ((Tracker) -> Void)?
+    var onUpdate: ((Tracker) -> Void)?
+    
+    var completedDaysCount = 0
     
     // MARK: - Private Properties
     
     private var selectedDays: Set<Weekday> = []
     private var selectedCategory: TrackerCategoryCoreData?
+    
+    private var trackerToEdit: Tracker?
     
     // MARK: - UI
     
@@ -46,6 +51,8 @@ final class NewHabitViewController: UIViewController {
     private let colorCollectionView: UICollectionView
     
     private let colors: [UIColor] = [UIColor(resource: .cellColor1),UIColor(resource: .cellColor2),UIColor(resource: .cellColor3),UIColor(resource: .cellColor4),UIColor(resource: .cellColor5),UIColor(resource: .cellColor6),UIColor(resource: .cellColor7),UIColor(resource: .cellColor8),UIColor(resource: .cellColor9),UIColor(resource: .cellColor10),UIColor(resource: .cellColor11),UIColor(resource: .cellColor12),UIColor(resource: .cellColor13),UIColor(resource: .cellColor14),UIColor(resource: .cellColor15),UIColor(resource: .cellColor16),UIColor(resource: .cellColor17),UIColor(resource: .cellColor18)]
+    
+    private let daysCountLabel = UILabel()
     
     private var selectedColorIndex: IndexPath?
     
@@ -89,10 +96,13 @@ final class NewHabitViewController: UIViewController {
         setupColorSection()
         setupGestures()
         setupButtons()
+        setupDaysCountLabel()
         setupConstraints()
         
         updateCreateButtonState()
         updateCategoryUI()
+        
+        fillDataIfNeeded()
     }
     
     // MARK: - Setup
@@ -192,6 +202,15 @@ final class NewHabitViewController: UIViewController {
         createButton.addAction(UIAction { [weak self] _ in self?.createTapped() }, for: .touchUpInside)
     }
     
+    private func setupDaysCountLabel() {
+        daysCountLabel.font = UIFont.systemFont(ofSize: 32, weight: .bold)
+        daysCountLabel.textAlignment = .center
+        daysCountLabel.isHidden = true
+
+        daysCountLabel.translatesAutoresizingMaskIntoConstraints = false
+        contentView.addSubview(daysCountLabel)
+    }
+    
     private func setupGestures() {
         let categoryTap = UITapGestureRecognizer(target: self, action: #selector(categoryTapped))
         categoryRow.addGestureRecognizer(categoryTap)
@@ -218,7 +237,9 @@ final class NewHabitViewController: UIViewController {
             
             // TextField
             
-            textField.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 20),
+            daysCountLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 24),
+            daysCountLabel.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
+            textField.topAnchor.constraint(equalTo: daysCountLabel.bottomAnchor, constant: 24),
             textField.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
             textField.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
             textField.heightAnchor.constraint(equalToConstant: 64),
@@ -301,6 +322,10 @@ final class NewHabitViewController: UIViewController {
     
     // MARK: - Configure
     
+    func configure(with tracker: Tracker) {
+        trackerToEdit = tracker
+    }
+    
     private func configureOptionsView() {
         optionsView.backgroundColor = UIColor(resource: .backgroundDay)
         optionsView.layer.cornerRadius = 16
@@ -379,14 +404,20 @@ final class NewHabitViewController: UIViewController {
         let color = selectedColorIndex.map { colors[$0.item] } ?? .systemGreen
         
         let tracker = Tracker(
-            id: UUID(),
+            id: trackerToEdit?.id ?? UUID(),
             name: name,
             color: color,
             emoji: emoji,
-            schedule: Array(selectedDays)
+            schedule: Array(selectedDays),
+            category: selectedCategory
         )
         
-        onCreate?(tracker)
+        if trackerToEdit != nil {
+            onUpdate?(tracker)
+        } else {
+            onCreate?(tracker)
+        }
+        
         dismiss(animated: true)
     }
     
@@ -457,6 +488,50 @@ final class NewHabitViewController: UIViewController {
         
         createButton.isEnabled = isEnabled
         createButton.backgroundColor = isEnabled ? .black : UIColor(resource: .gray)
+    }
+    
+    private func fillDataIfNeeded() {
+        
+        guard let tracker = trackerToEdit else {
+            return
+        }
+        
+        daysCountLabel.isHidden = false
+        daysCountLabel.text = String.localizedStringWithFormat(
+            NSLocalizedString("tracker.days", comment: ""),
+            completedDaysCount
+        )
+        
+        createButton.setTitle(
+            NSLocalizedString("common.save", comment: ""),
+            for: .normal
+        )
+
+        title = NSLocalizedString("tracker.edit.title", comment: "")
+
+        textField.text = tracker.name
+
+        if let emojiIndex = emojis.firstIndex(of: tracker.emoji) {
+            selectedEmojiIndex = IndexPath(item: emojiIndex, section: 0)
+        }
+
+        if let colorIndex = colors.firstIndex(where: {
+            $0.cgColor == tracker.color.cgColor
+        }) {
+            selectedColorIndex = IndexPath(item: colorIndex, section: 0)
+        }
+
+        selectedDays = Set(tracker.schedule)
+        
+        selectedCategory = tracker.category
+        updateCategoryUI()
+
+        updateScheduleLabel()
+
+        emojiCollectionView.reloadData()
+        colorCollectionView.reloadData()
+
+        updateCreateButtonState()
     }
     
     // MARK: - Helpers

@@ -58,6 +58,8 @@ extension TrackerStore {
         trackerCD.emoji = tracker.emoji
         trackerCD.color = tracker.color
         trackerCD.schedule = tracker.schedule as NSObject
+        trackerCD.category = tracker.category
+
         
         do {
             try context.save()
@@ -66,6 +68,37 @@ extension TrackerStore {
             print("Ошибка сохранения: \(error)")
         }
         
+    }
+    
+    func delete(_ trackerCD: TrackerCoreData) {
+        context.delete(trackerCD)
+
+        do {
+            try context.save()
+        } catch {
+            print("Ошибка удаления: \(error)")
+        }
+    }
+    
+    func update(_ tracker: Tracker) {
+
+        guard let trackerCD = trackers.first(where: {
+            $0.id == tracker.id
+        }) else {
+            return
+        }
+
+        trackerCD.name = tracker.name
+        trackerCD.emoji = tracker.emoji
+        trackerCD.color = tracker.color
+        trackerCD.schedule = tracker.schedule as NSObject
+        trackerCD.category = tracker.category
+
+        do {
+            try context.save()
+        } catch {
+            print("Ошибка обновления: \(error)")
+        }
     }
 }
 
