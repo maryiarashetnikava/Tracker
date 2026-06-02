@@ -7,6 +7,8 @@ final class TrackersViewController: UIViewController {
     var currentDate: Date = Date()
     private var searchText = ""
     
+    private var selectedFilter: TrackerFilter = .all
+    
     private let trackerStore: TrackerStore
     private let recordStore: TrackerRecordStore
     
@@ -24,8 +26,33 @@ final class TrackersViewController: UIViewController {
             let matchesSearch =
                 searchText.isEmpty ||
                 name.lowercased().contains(searchText.lowercased())
+            
+            let tracker = makeTracker(from: trackerCD)
 
-            return matchesDay && matchesSearch
+            let matchesFilter: Bool
+
+            switch selectedFilter {
+
+            case .all:
+                matchesFilter = true
+
+            case .today:
+                matchesFilter = true
+
+            case .completed:
+                matchesFilter = isTrackerCompleted(
+                    tracker,
+                    on: currentDate
+                )
+
+            case .uncompleted:
+                matchesFilter = !isTrackerCompleted(
+                    tracker,
+                    on: currentDate
+                )
+            }
+
+            return matchesDay && matchesSearch && matchesFilter
         }
     }
     
@@ -56,6 +83,8 @@ final class TrackersViewController: UIViewController {
     private let searchBar = UISearchBar()
     private let datePicker = UIDatePicker()
     
+    private let filterButton = UIButton(type: .system)
+    
     private var collectionView: UICollectionView!
     
     
@@ -84,16 +113,12 @@ final class TrackersViewController: UIViewController {
         setupNavigationBar()
         setupSearchBar()
         setupCollectionView()
+        setupFilterButton()
         setupEmptyState()
         setupTabBarAppearance()
         setupDatePicker()
         
         updateEmptyState()
-        
-        for section in visibleSections {
-            print("Категория:", section.title)
-            print("Трекеров:", section.trackers.count)
-        }
 
     }
 }
@@ -158,6 +183,8 @@ extension TrackersViewController {
         collectionView.dataSource = self
         collectionView.delegate = self
         
+        collectionView.contentInset.bottom = 100
+        
         collectionView.register(TrackerCell.self, forCellWithReuseIdentifier: TrackerCell.reuseIdentifier)
         
         collectionView.register(
@@ -212,6 +239,42 @@ extension TrackersViewController {
         datePicker.addTarget(self, action: #selector(dateChanged), for: .valueChanged)
     }
     
+    func setupFilterButton() {
+        
+        filterButton.setTitle(
+            NSLocalizedString("filters.title", comment: ""),
+            for: .normal
+        )
+
+        filterButton.setTitleColor(.white, for: .normal)
+        filterButton.backgroundColor = .systemBlue
+
+        filterButton.layer.cornerRadius = 16
+
+        filterButton.translatesAutoresizingMaskIntoConstraints = false
+
+        view.addSubview(filterButton)
+        
+        filterButton.addTarget(
+            self,
+            action: #selector(filterButtonTapped),
+            for: .touchUpInside
+        )
+        
+        NSLayoutConstraint.activate([
+
+            filterButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+
+            filterButton.bottomAnchor.constraint(
+                equalTo: view.safeAreaLayoutGuide.bottomAnchor,
+                constant: -16
+            ),
+
+            filterButton.widthAnchor.constraint(equalToConstant: 114),
+            filterButton.heightAnchor.constraint(equalToConstant: 50)
+        ])
+    }
+    
     func setupTabBarAppearance() {
         guard let tabBar = tabBarController?.tabBar else { return }
         
@@ -242,11 +305,44 @@ extension TrackersViewController {
     }
     
     func updateEmptyState() {
-        let isEmpty = visibleTrackers.isEmpty
+
+        let hasAnyTrackers = !trackerStore.trackers.isEmpty
+        let hasVisibleTrackers = !visibleTrackers.isEmpty
         
-        emptyImageView.isHidden = !isEmpty
-        emptyLabel.isHidden = !isEmpty
-        collectionView.isHidden = isEmpty
+        filterButton.isHidden =
+            visibleTrackers.isEmpty &&
+            searchText.isEmpty &&
+            selectedFilter == .all
+
+        if hasVisibleTrackers {
+
+            emptyImageView.isHidden = true
+            emptyLabel.isHidden = true
+            collectionView.isHidden = false
+
+            return
+        }
+
+        collectionView.isHidden = true
+        emptyImageView.isHidden = false
+        emptyLabel.isHidden = false
+
+        if hasAnyTrackers {
+
+            emptyImageView.image = UIImage(resource: .nothing)
+            emptyLabel.text = NSLocalizedString(
+                "filters.empty",
+                comment: ""
+            )
+
+        } else {
+
+            emptyImageView.image = UIImage(resource: .dizzy)
+            emptyLabel.text = NSLocalizedString(
+                "trackers.empty",
+                comment: ""
+            )
+        }
     }
 }
 
@@ -273,6 +369,40 @@ extension TrackersViewController {
         currentDate = datePicker.date
         collectionView.reloadData()
         updateEmptyState()
+    }
+    
+    @objc private func filterButtonTapped() {
+
+        let vc = FiltersViewController()
+
+        vc.selectedFilter = selectedFilter
+
+        vc.onSelect = { [weak self] filter in
+            guard let self else { return }
+
+            self.selectedFilter = filter
+
+            switch filter {
+
+            case .today:
+                self.currentDate = Date()
+                self.datePicker.date = Date()
+
+            case .all,
+                 .completed,
+                 .uncompleted:
+                break
+            }
+
+            self.collectionView.reloadData()
+            self.updateEmptyState()
+        }
+
+        let nav = UINavigationController(
+            rootViewController: vc
+        )
+
+        present(nav, animated: true)
     }
     
     private func showDeleteAlert(for trackerCD: TrackerCoreData) {

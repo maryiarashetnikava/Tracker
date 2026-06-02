@@ -56,3 +56,13 @@
 "common.cancel" = "Отменить";
 "common.save" = "Сохранить";
 "tracker.edit.title" = "Редактирование привычки";
+
+"filters.title" = "Фильтры";
+
+"filters.all" = "Все трекеры";
+"filters.today" = "Трекеры на сегодня";
+"filters.completed" = "Завершённые";
+"filters.uncompleted" = "Не завершённые";
+
+"filters.empty" = "Ничего не найдено";
+

@@ -56,3 +56,12 @@
 "common.cancel" = "Cancel";
 "common.save" = "Save";
 "tracker.edit.title" = "Edit Habit";
+
+"filters.title" = "Filters";
+
+"filters.all" = "All Trackers";
+"filters.today" = "Trackers for Today";
+"filters.completed" = "Completed";
+"filters.uncompleted" = "Uncompleted";
+
+"filters.empty" = "Nothing Found";
