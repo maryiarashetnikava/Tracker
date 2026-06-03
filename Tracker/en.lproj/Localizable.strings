@@ -65,3 +65,10 @@
 "filters.uncompleted" = "Uncompleted";
 
 "filters.empty" = "Nothing Found";
+
+"statistics.empty" = "Nothing to analyze yet";
+
+"statistics.bestPeriod" = "Best period";
+"statistics.perfectDays" = "Perfect days";
+"statistics.completedTrackers" = "Trackers completed";
+"statistics.averageValue" = "Average value";
