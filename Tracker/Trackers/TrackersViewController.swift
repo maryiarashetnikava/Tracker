@@ -121,6 +121,24 @@ final class TrackersViewController: UIViewController {
         updateEmptyState()
 
     }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+
+        AnalyticsService.shared.report(
+            event: "open",
+            screen: "Main"
+        )
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+
+        AnalyticsService.shared.report(
+            event: "close",
+            screen: "Main"
+        )
+    }
 }
 
 // MARK: - Setup UI
@@ -351,6 +369,13 @@ extension TrackersViewController {
 extension TrackersViewController {
     
     @objc func addButtonTapped() {
+        
+        AnalyticsService.shared.report(
+            event: "click",
+            screen: "Main",
+            item: "add_track"
+        )
+        
         let vc = NewHabitViewController()
         
         vc.onCreate = { [weak self] tracker in
@@ -372,6 +397,12 @@ extension TrackersViewController {
     }
     
     @objc private func filterButtonTapped() {
+        
+        AnalyticsService.shared.report(
+            event: "click",
+            screen: "Main",
+            item: "filter"
+        )
 
         let vc = FiltersViewController()
 
@@ -563,6 +594,12 @@ extension TrackersViewController: UICollectionViewDelegate {
         ) { [weak self] _ in
 
             guard let self else { return }
+            
+            AnalyticsService.shared.report(
+                event: "click",
+                screen: "Main",
+                item: "edit"
+            )
 
             let trackerCD = self.visibleSections[indexPath.section]
                 .trackers[indexPath.item]
@@ -592,6 +629,12 @@ extension TrackersViewController: UICollectionViewDelegate {
         ) { [weak self] _ in
 
             guard let self else { return }
+            
+            AnalyticsService.shared.report(
+                event: "click",
+                screen: "Main",
+                item: "delete"
+            )
 
             let trackerCD = self.visibleSections[indexPath.section]
                 .trackers[indexPath.item]
@@ -615,6 +658,13 @@ extension TrackersViewController: UICollectionViewDelegate {
 extension TrackersViewController: TrackerCellDelegate {
     
     func didTapPlusButton(in cell: TrackerCell) {
+        
+        AnalyticsService.shared.report(
+             event: "click",
+             screen: "Main",
+             item: "track"
+         )
+        
         guard let indexPath = collectionView.indexPath(for: cell) else {
             return
         }
