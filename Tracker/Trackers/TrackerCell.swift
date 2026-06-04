@@ -82,46 +82,35 @@ private extension TrackerCell {
 private extension TrackerCell {
     
     func setupAppearance() {
-
+        
         cardView.backgroundColor = .systemGreen
         cardView.layer.cornerRadius = 12
-
+        
         titleLabel.font = UIFont.systemFont(ofSize: 12, weight: .medium)
         titleLabel.textColor = .white
         titleLabel.numberOfLines = 2
-
+        
         emojiContainer.backgroundColor = UIColor.white.withAlphaComponent(0.3)
         emojiContainer.layer.cornerRadius = 16
         
         emojiLabel.font = UIFont.systemFont(ofSize: 16)
-
+        
         plusButton.setImage(UIImage(systemName: "plus"), for: .normal)
         plusButton.tintColor = .white
         plusButton.backgroundColor = .systemGreen
         plusButton.layer.cornerRadius = 17
         plusButton.addTarget(self, action: #selector(plusTapped), for: .touchUpInside)
-
+        
         countLabel.font = UIFont.systemFont(ofSize: 12, weight: .medium)
         countLabel.textColor = .label
-
+        
     }
     
     func daysText(for count: Int) -> String {
-        let remainder10 = count % 10
-        let remainder100 = count % 100
-        
-        if remainder100 >= 11 && remainder100 <= 14 {
-            return "\(count) дней"
-        }
-        
-        switch remainder10 {
-        case 1:
-            return "\(count) день"
-        case 2, 3, 4:
-            return "\(count) дня"
-        default:
-            return "\(count) дней"
-        }
+        return String.localizedStringWithFormat(
+            NSLocalizedString("tracker.days", comment: ""),
+            count
+        )
     }
 }
 

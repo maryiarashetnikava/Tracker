@@ -1,0 +1,74 @@
+"trackers.title" = "Трекеры";
+"statistics.title" = "Статистика";
+
+"categories.title" = "Категория";
+"categories.add" = "Добавить категорию";
+"categories.empty" = "Привычки и события можно\nобъединить по смыслу";
+
+"common.delete" = "Удалить";
+"common.cancel" = "Отменить";
+"common.edit" = "Редактировать";
+"common.create" = "Создать";
+"common.done" = "Готово";
+
+"newCategory.title" = "Новая категория";
+"editCategory.title" = "Редактирование категории";
+"category.placeholder" = "Введите название категории";
+
+"schedule.title" = "Расписание";
+
+"search.placeholder" = "Поиск";
+"trackers.empty" = "Что будем отслеживать?";
+
+"newHabit.title" = "Новая привычка";
+"tracker.placeholder" = "Введите название трекера";
+
+"emoji.title" = "Emoji";
+"color.title" = "Цвет";
+
+"weekday.monday.short" = "Пн";
+"weekday.tuesday.short" = "Вт";
+"weekday.wednesday.short" = "Ср";
+"weekday.thursday.short" = "Чт";
+"weekday.friday.short" = "Пт";
+"weekday.saturday.short" = "Сб";
+"weekday.sunday.short" = "Вс";
+
+"weekday.monday" = "Понедельник";
+"weekday.tuesday" = "Вторник";
+"weekday.wednesday" = "Среда";
+"weekday.thursday" = "Четверг";
+"weekday.friday" = "Пятница";
+"weekday.saturday" = "Суббота";
+"weekday.sunday" = "Воскресенье";
+
+"onboarding.first" = "Отслеживайте только\nто, что хотите";
+"onboarding.second" = "Даже если это\nне литры воды и йога";
+
+"onboarding.button" = "Вот это технологии!";
+
+"categories.delete.confirm" = "Эта категория точно не нужна?";
+
+"tracker.edit" = "Редактировать";
+"tracker.delete" = "Удалить";
+
+"tracker.delete.confirmation" = "Уверены что хотите удалить трекер?";
+"common.cancel" = "Отменить";
+"common.save" = "Сохранить";
+"tracker.edit.title" = "Редактирование привычки";
+
+"filters.title" = "Фильтры";
+
+"filters.all" = "Все трекеры";
+"filters.today" = "Трекеры на сегодня";
+"filters.completed" = "Завершённые";
+"filters.uncompleted" = "Не завершённые";
+
+"filters.empty" = "Ничего не найдено";
+
+"statistics.empty" = "Анализировать пока нечего";
+
+"statistics.bestPeriod" = "Лучший период";
+"statistics.perfectDays" = "Идеальные дни";
+"statistics.completedTrackers" = "Трекеров завершено";
+"statistics.averageValue" = "Среднее значение";

@@ -11,11 +11,11 @@ final class OnboardingViewController: UIPageViewController {
 
     private let pagesData: [OnboardingPageModel] = [
         OnboardingPageModel(
-            text: "Отслеживайте только\nто, что хотите",
+            text: NSLocalizedString("onboarding.first", comment: ""),
             backgroundImage: UIImage(resource: .onboardingBlue)
         ),
         OnboardingPageModel(
-            text: "Даже если это\nне литры воды и йога",
+            text: NSLocalizedString("onboarding.second", comment: ""),
             backgroundImage: UIImage(resource: .onboardingRed)
         )
     ]

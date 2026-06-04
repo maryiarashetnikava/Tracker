@@ -1,0 +1,74 @@
+"trackers.title" = "Trackers";
+"statistics.title" = "Statistics";
+
+"categories.title" = "Category";
+"categories.add" = "Add Category";
+"categories.empty" = "Habits and events can\nbe grouped by meaning";
+
+"common.delete" = "Delete";
+"common.cancel" = "Cancel";
+"common.edit" = "Edit";
+"common.create" = "Create";
+"common.done" = "Done";
+
+"newCategory.title" = "New Category";
+"editCategory.title" = "Edit Category";
+"category.placeholder" = "Enter category name";
+
+"schedule.title" = "Schedule";
+
+"search.placeholder" = "Search";
+"trackers.empty" = "What shall we track?";
+
+"newHabit.title" = "New Habit";
+"tracker.placeholder" = "Enter tracker name";
+
+"emoji.title" = "Emoji";
+"color.title" = "Color";
+
+"weekday.monday.short" = "Mon";
+"weekday.tuesday.short" = "Tue";
+"weekday.wednesday.short" = "Wed";
+"weekday.thursday.short" = "Thu";
+"weekday.friday.short" = "Fri";
+"weekday.saturday.short" = "Sat";
+"weekday.sunday.short" = "Sun";
+
+"weekday.monday" = "Monday";
+"weekday.tuesday" = "Tuesday";
+"weekday.wednesday" = "Wednesday";
+"weekday.thursday" = "Thursday";
+"weekday.friday" = "Friday";
+"weekday.saturday" = "Saturday";
+"weekday.sunday" = "Sunday";
+
+"onboarding.first" = "Track only what\nyou want";
+"onboarding.second" = "Even if it’s\nnot water and yoga";
+
+"onboarding.button" = "That’s technology!";
+
+"categories.delete.confirm" = "Are you sure you don't need this category?";
+
+"tracker.edit" = "Edit";
+"tracker.delete" = "Delete";
+
+"tracker.delete.confirmation" = "Are you sure you want to delete this tracker?";
+"common.cancel" = "Cancel";
+"common.save" = "Save";
+"tracker.edit.title" = "Edit Habit";
+
+"filters.title" = "Filters";
+
+"filters.all" = "All Trackers";
+"filters.today" = "Trackers for Today";
+"filters.completed" = "Completed";
+"filters.uncompleted" = "Uncompleted";
+
+"filters.empty" = "Nothing Found";
+
+"statistics.empty" = "Nothing to analyze yet";
+
+"statistics.bestPeriod" = "Best period";
+"statistics.perfectDays" = "Perfect days";
+"statistics.completedTrackers" = "Trackers completed";
+"statistics.averageValue" = "Average value";

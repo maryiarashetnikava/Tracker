@@ -57,7 +57,7 @@ final class CategoriesViewController: UIViewController {
     
     private func setupView() {
         view.backgroundColor = .systemBackground
-        title = "Категория"
+        title = NSLocalizedString("categories.title", comment: "")
     }
     
     private func configureNavigationBar() {
@@ -107,7 +107,7 @@ final class CategoriesViewController: UIViewController {
     }
     
     private func setupAddButton() {
-        addButton.setTitle("Добавить категорию", for: .normal)
+        addButton.setTitle(NSLocalizedString("categories.add", comment: ""),for: .normal)
         addButton.backgroundColor = .black
         addButton.setTitleColor(.white, for: .normal)
         addButton.layer.cornerRadius = 16
@@ -130,7 +130,7 @@ final class CategoriesViewController: UIViewController {
         paragraphStyle.alignment = .center
 
         emptyLabel.attributedText = NSAttributedString(
-            string: "Привычки и события можно\nобъединить по смыслу",
+            string: NSLocalizedString("categories.empty", comment: ""),
             attributes: [
                 .font: UIFont.systemFont(ofSize: 12),
                 .paragraphStyle: paragraphStyle
@@ -194,7 +194,7 @@ final class CategoriesViewController: UIViewController {
         
         viewModel.onCategorySelected = { [weak self] category in
             self?.onCategorySelected?(category)
-            self?.dismiss(animated: true)
+            self?.navigationController?.popViewController(animated: true)
         }
         
         viewModel.onAddCategoryRequested = { [weak self] in
@@ -244,16 +244,16 @@ final class CategoriesViewController: UIViewController {
     
     private func confirmDelete(category: TrackerCategoryCoreData) {
         let alert = UIAlertController(
-            title: "Эта категория точно не нужна?",
+            title: NSLocalizedString("categories.delete.confirm", comment: ""),
             message: nil,
             preferredStyle: .actionSheet
         )
         
-        alert.addAction(UIAlertAction(title: "Удалить", style: .destructive) { [weak self] _ in
+        alert.addAction(UIAlertAction(title: NSLocalizedString("common.delete", comment: ""), style: .destructive) { [weak self] _ in
             self?.viewModel.deleteCategory(category)
         })
         
-        alert.addAction(UIAlertAction(title: "Отменить", style: .cancel))
+        alert.addAction(UIAlertAction(title: NSLocalizedString("common.cancel", comment: ""), style: .cancel))
         
         present(alert, animated: true)
     }
@@ -318,11 +318,11 @@ extension CategoriesViewController: UITableViewDelegate {
         
         return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { [weak self] _ in
             
-            let edit = UIAction(title: "Редактировать") { _ in
+            let edit = UIAction(title: NSLocalizedString("common.edit", comment: "")) { _ in
                 self?.viewModel.didTapEdit(at: indexPath)
             }
             
-            let delete = UIAction(title: "Удалить", attributes: .destructive) { _ in
+            let delete = UIAction(title: NSLocalizedString("common.delete", comment: ""), attributes: .destructive) { _ in
                 self?.viewModel.didTapDelete(at: indexPath)
             }
             

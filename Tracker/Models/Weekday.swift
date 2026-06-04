@@ -23,13 +23,20 @@ extension Weekday {
     
     var title: String {
         switch self {
-        case .monday: return "Понедельник"
-        case .tuesday: return "Вторник"
-        case .wednesday: return "Среда"
-        case .thursday: return "Четверг"
-        case .friday: return "Пятница"
-        case .saturday: return "Суббота"
-        case .sunday: return "Воскресенье"
+        case .monday:
+            return NSLocalizedString("weekday.monday", comment: "")
+        case .tuesday:
+            return NSLocalizedString("weekday.tuesday", comment: "")
+        case .wednesday:
+            return NSLocalizedString("weekday.wednesday", comment: "")
+        case .thursday:
+            return NSLocalizedString("weekday.thursday", comment: "")
+        case .friday:
+            return NSLocalizedString("weekday.friday", comment: "")
+        case .saturday:
+            return NSLocalizedString("weekday.saturday", comment: "")
+        case .sunday:
+            return NSLocalizedString("weekday.sunday", comment: "")
         }
     }
     

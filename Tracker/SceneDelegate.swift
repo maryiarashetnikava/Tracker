@@ -24,7 +24,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             selectedImage: nil
         )
         
-        let statsVC = StatisticsViewController()
+        let statsVC = StatisticsViewController(
+            trackerStore: trackerStore,
+            recordStore: recordStore
+        )
         let statsNav = UINavigationController(rootViewController: statsVC)
         statsNav.tabBarItem = UITabBarItem(
             title: "Статистика",

@@ -28,7 +28,7 @@ final class OnboardingPageViewController: UIViewController {
     
     private lazy var actionButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Вот это технологии!", for: .normal)
+        button.setTitle(NSLocalizedString("onboarding.button", comment: ""),for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 16, weight: .semibold)
         button.backgroundColor = .black
         button.setTitleColor(.white, for: .normal)
